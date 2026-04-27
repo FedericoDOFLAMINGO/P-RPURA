@@ -846,6 +846,7 @@ function playVideo(e, idx) {
                    const v = document.createElement('video');
                    v.src = MOMENTS[idx].media;
                    v.controls = true;
+                    v.muted = true;
                    v.style.cssText = img.style.cssText;
                    v.className = img.className;
                    img.replaceWith(v);
@@ -880,6 +881,7 @@ function openLightbox(idx) {
     const vid = document.createElement('video');
     vid.src = m.media;
     vid.controls = true;
+     v.muted = true;
     inner.appendChild(vid);
   }
 
