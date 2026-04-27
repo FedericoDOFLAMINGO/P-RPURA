@@ -845,8 +845,8 @@ function playVideo(e, idx) {
                  if (img) {
                    const v = document.createElement('video');
                    v.src = MOMENTS[idx].media;
-                   v.controls = true;
                     v.muted = true;
+                    v.play().catch(() => {});
                    v.style.cssText = img.style.cssText;
                    v.className = img.className;
                    img.replaceWith(v);
@@ -879,9 +879,9 @@ function openLightbox(idx) {
     inner.appendChild(img);
   } else {
     const vid = document.createElement('video');
-    vid.src = m.media;
-    vid.controls = true;
-    vid.muted = true;
+   vid.src = m.media;
+   vid.muted = true;
+   vid.controls = false;
     inner.appendChild(vid);
   }
 
