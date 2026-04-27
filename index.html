@@ -813,6 +813,7 @@ function openMoment(idx) {
   const card = document.querySelector(`.moment-card[data-index="${idx}"]`);
   if (card.classList.contains('opened')) {
     if (MOMENTS[idx].type === 'photo') openLightbox(idx);
+    playCardSong(MOMENTS[idx].song, MOMENTS[idx].songName);  // ← línea añadida
     return;
   }
   card.classList.add('opened');
