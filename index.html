@@ -616,8 +616,8 @@ const MOMENTS = [
   /* ── FOTO 1 ── */
   {
     type: 'photo',
-    media:  'fotos/foto1.jpg',          // ← ruta a tu imagen
-    song:   'canciones/cancion1.mp3',   // ← ruta a tu canción
+    media:  'fotos/foto1.jpg',
+    song:   'canciones/cancion1.mp3',
     songName: 'Nombre de la canción 1',
     phrase: 'El día que todo empezó…',
     caption: 'El inicio de algo eterno, Un verdadero amor que no se pudo parar con nada, destinados a encontrarnos y estar juntos.'
@@ -625,8 +625,8 @@ const MOMENTS = [
   /* ── VIDEO 1 ── */
   {
     type: 'video',
-    media:  'videos/vid1.mp4',        // ← ruta a tu video
-    thumb:  'fotos/thumb1.jpg',         // ← imagen miniatura del video (opcional)
+    media:  'videos/vid1.mp4',
+    thumb:  'fotos/thumb1.jpg',
     song:   'canciones/cancion7.mp3',
     songName: 'Nombre de la canción 7',
     phrase: 'Un momento que guardo en el corazón.',
@@ -749,14 +749,10 @@ function envelopeSVG(isVideo) {
         <stop offset="100%" stop-color="${color}"/>
       </linearGradient>
     </defs>
-    <!-- body -->
     <rect x="2" y="14" width="76" height="40" rx="3" fill="${color}" stroke="rgba(201,168,76,0.4)" stroke-width="1"/>
-    <!-- flap -->
     <polygon points="2,14 40,38 78,14" fill="${isVideo ? '#9a2840' : '#a07840'}" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
-    <!-- bottom folds -->
     <polygon points="2,54 40,34 2,14" fill="rgba(0,0,0,0.2)"/>
     <polygon points="78,54 40,34 78,14" fill="rgba(0,0,0,0.15)"/>
-    <!-- wax seal -->
     <circle cx="40" cy="35" r="8" fill="${isVideo ? '#7a1c2e' : '#7a5020'}" stroke="rgba(201,168,76,0.6)" stroke-width="1"/>
     <text x="40" y="39" text-anchor="middle" font-size="9" fill="rgba(240,208,128,0.9)">${isVideo ? '▶' : '♡'}</text>
   </svg>`;
@@ -778,29 +774,25 @@ MOMENTS.forEach((m, i) => {
     <div class="env-container" onclick="openMoment(${i})">
       ${isVideo ? '<div class="video-badge">▶ Video</div>' : ''}
       
-      <!-- blurred media preview -->
       <div class="media-preview">
         ${isVideo
           ? (thumbSrc
               ? `<img src="${thumbSrc}" alt="">`
-              : `<video src="${mediaSrc}" muted preload="metadata"></video>`)
+              : `<video src="${mediaSrc}" muted playsinline preload="metadata"></video>`)
           : `<img src="${mediaSrc}" alt="">`}
       </div>
 
-      <!-- envelope overlay -->
       <div class="env-overlay">
         <div class="env-svg-wrap">${envelopeSVG(isVideo)}</div>
         <div class="env-overlay-label">~ Toca para abrir ~</div>
       </div>
 
-      <!-- play button (videos only) -->
       <div class="play-btn" onclick="playVideo(event, ${i})">
         <div class="play-circle">
           <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
         </div>
       </div>
 
-      <!-- now playing bar -->
       <div class="now-playing">
         <span class="np-icon">♪</span>
         <span class="np-title">${m.songName}</span>
@@ -822,14 +814,10 @@ MOMENTS.forEach((m, i) => {
 function openMoment(idx) {
   const card = document.querySelector(`.moment-card[data-index="${idx}"]`);
   if (card.classList.contains('opened')) {
-    // Second click on photo → lightbox
     if (MOMENTS[idx].type === 'photo') openLightbox(idx);
     return;
   }
-
   card.classList.add('opened');
-
-  // Play song
   playCardSong(MOMENTS[idx].song, MOMENTS[idx].songName);
 }
 
@@ -837,25 +825,26 @@ function openMoment(idx) {
 function playVideo(e, idx) {
   e.stopPropagation();
   const card = document.querySelector(`.moment-card[data-index="${idx}"]`);
-  const vid  = card.querySelector('.media-preview video') ||
-               (() => {
-                 // swap thumb img for video
-                 const preview = card.querySelector('.media-preview');
-                 const img = preview.querySelector('img');
-                 if (img) {
-                   const v = document.createElement('video');
-                   v.src = MOMENTS[idx].media;
-                    v.muted = true;
-                    v.play().catch(() => {});
-                   v.style.cssText = img.style.cssText;
-                   v.className = img.className;
-                   img.replaceWith(v);
-                   return v;
-                 }
-               })();
+  let vid = card.querySelector('.media-preview video');
+
+  if (!vid) {
+    // swap thumb img for video
+    const preview = card.querySelector('.media-preview');
+    const img = preview.querySelector('img');
+    if (img) {
+      const v = document.createElement('video');
+      v.src = MOMENTS[idx].media;
+      v.muted = true;
+      v.playsinline = true;
+      v.style.cssText = img.style.cssText;
+      v.className = img.className;
+      img.replaceWith(v);
+      vid = v;
+    }
+  }
 
   if (vid) {
-    vid.controls = true;
+    vid.muted = true;
     vid.play().catch(() => {});
     card.classList.add('playing');
   }
@@ -870,7 +859,6 @@ function stopFromCard(e, idx) {
 function openLightbox(idx) {
   const m = MOMENTS[idx];
   const inner = document.getElementById('lightboxInner');
-  // Remove previous media
   inner.querySelectorAll('img,video').forEach(el => el.remove());
 
   if (m.type === 'photo') {
@@ -879,9 +867,10 @@ function openLightbox(idx) {
     inner.appendChild(img);
   } else {
     const vid = document.createElement('video');
-   vid.src = m.media;
-   vid.muted = true;
-   vid.controls = false;
+    vid.src = m.media;
+    vid.muted = true;
+    vid.autoplay = true;
+    vid.playsinline = true;
     inner.appendChild(vid);
   }
 
@@ -941,7 +930,6 @@ document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; })
   requestAnimationFrame(animCursor);
 })();
 
-// hide on mobile
 if ('ontouchstart' in window) {
   cur.style.display = 'none';
   curR.style.display = 'none';
